@@ -873,7 +873,7 @@ fn ac_constr_chain_fixpoint(extracted: &[AcConstrPair]) -> bool {
 ///      `nodeConcNode c`.
 ///
 /// All three conditions together violate normal form invariant
-/// N6: if the adversary already knew `t_start` (KU before), they
+/// N6′: if the adversary already knew `t_start` (KU before), they
 /// shouldn't be deconstructing it (KD chain) afterwards.  Hits an
 /// otherwise-undetected contradiction earlier than the search
 /// would, pruning a search branch.
