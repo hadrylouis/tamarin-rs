@@ -23,14 +23,6 @@ pub const SKIP_ELAB: &str = "elaboration rejects this upstream example";
 /// path and failed stage together: changes to either require an explicit
 /// review instead of being hidden by an aggregate coverage percentage.
 pub const EXPECTED_LOAD_SKIPS: &[(&str, &str)] = &[
-    ("ccs18-5G/5G-AKA-bindingChannel/5G_AKA.spthy", SKIP_PARSE),
-    ("ccs18-5G/5G-AKA-bindingChannel/5G_AKA_fix.spthy", SKIP_PARSE),
-    ("ccs18-5G/5G-AKA-nonBindingChannel/5G_AKA.spthy", SKIP_PARSE),
-    ("ccs18-5G/5G-AKA-nonBindingChannel/5G_AKA_fix.spthy", SKIP_PARSE),
-    ("ccs18-5G/5G-AKA-untraceability/5G_AKA_priv.spthy", SKIP_PARSE),
-    ("ccs18-5G/5G-AKA-untraceability/proofs/5G_AKA_priv-attack.spthy", SKIP_PARSE),
-    ("features/auto-sources/tamarin-repo/ccs18-5G/5G-AKA-untraceability/5G_AKA_priv-without-SL.spthy", SKIP_PARSE),
-    ("features/auto-sources/tamarin-repo/ccs18-5G/5G-AKA-untraceability/5G_AKA_priv.spthy", SKIP_PARSE),
     ("features/predicates/functionappl.spthy", SKIP_PARSE),
     ("regression/trace/issue834-2.spthy", SKIP_PARSE),
     ("regression/trace/issue834-3.spthy", SKIP_PARSE),
