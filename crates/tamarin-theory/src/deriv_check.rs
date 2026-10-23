@@ -455,13 +455,13 @@ fn prove_probe(
     // below and cannot truncate an unrelated search another thread starts
     // while a probe is running.  The RAII guard restores the prior cap on
     // EVERY exit path, so the deadline cannot leak into the main prove loop.
-    // `None` (a negative `--derivcheck-timeout`) installs no guard, so the
-    // probes run uncapped unless the `TAM_PROVE_DEADLINE_MS` debug override
-    // is set.
-    let _deadline_guard = timeout.map(|t| {
-        let ms = (t.as_millis() as u64).max(1);
-        crate::constraint::solver::search::ProofDeadlineGuard::set_ms(ms)
-    });
+    // `None` (a negative `--derivcheck-timeout`) lifts every cap, so the
+    // probes cannot inherit one from an outer guard or the env var.
+    use crate::constraint::solver::search::ProofDeadlineGuard;
+    let _deadline_guard = match timeout {
+        Some(t) => ProofDeadlineGuard::set_ms((t.as_millis() as u64).max(1)),
+        None => ProofDeadlineGuard::unbounded(),
+    };
 
     let rules = vec![OpenProtoRule::new(probe.rule.clone())];
     // Probe contexts inherit the parent theory's checked cache verbatim
@@ -662,6 +662,35 @@ mod tests {
             report.len(),
             1,
             "expected 'unbound' reported, got {report:?}"
+        );
+    }
+
+    /// An unbounded check is never cut short by a wall-clock cap.  A 0 ms
+    /// cap on this thread kills every search that inherits it the moment it
+    /// starts, which would turn the derivable `x` into a reported variable;
+    /// `Unbounded` must lift it so the probe runs to its trace.
+    #[test]
+    fn deriv_check_unbounded_is_not_killed_by_a_deadline() {
+        use crate::constraint::solver::search::ProofDeadlineGuard;
+        let Some(m) = maude() else { return };
+        let src = r#"
+            theory T begin
+              rule R: [In(x)] --[Use(x)]-> [Out(x)]
+              lemma trivial: "T"
+            end
+        "#;
+        let _instant_kill = ProofDeadlineGuard::set_ms(0);
+        let report = check_message_derivation(
+            &theory(src),
+            &m,
+            DerivCheckTimeout::Unbounded,
+            None,
+            Default::default(),
+        )
+        .expect("solver operation");
+        assert!(
+            report.is_empty(),
+            "the unbounded probe was cut short: {report:?}"
         );
     }
 
