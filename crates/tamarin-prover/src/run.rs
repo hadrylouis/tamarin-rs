@@ -1916,6 +1916,8 @@ impl TheoryPipeline<'_> {
 
             let elaborated = &self.elaborated;
             let theory_name = self.elaborated.name.as_str();
+            let live = self.args.live;
+            let live_start = std::time::Instant::now();
             let run_lemma = |l: &tamarin_theory::theory::Lemma| -> Result<
                 (
                     tamarin_theory::pretty_theory::ProvedLemma,
@@ -2009,6 +2011,18 @@ impl TheoryPipeline<'_> {
                     proof_steps,
                     exists_trace,
                 };
+                // `--live`: report this lemma now rather than waiting for
+                // the whole theory.  Lemmas run in parallel, so lines come
+                // in completion order.  Non-target lemmas only replay, so
+                // they are not reported.
+                if live && is_target {
+                    eprintln!(
+                        "[Theory {}] [live] {} ({:.2}s)",
+                        theory_name,
+                        format_lemma_summary_line(&lr),
+                        live_start.elapsed().as_secs_f64()
+                    );
+                }
                 Ok((pl, lr, lemma_traces))
             };
 

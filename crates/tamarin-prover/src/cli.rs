@@ -153,6 +153,10 @@ pub struct Args {
     /// `[Theory X] …` markers and the summary block all print regardless.
     /// It gates only Rust-side diagnostics with no oracle counterpart.
     pub quiet: bool,
+    /// `--live`: print each lemma's verdict on stderr as soon as it is
+    /// proved, instead of only in the final summary.  Rust-only, off by
+    /// default so stdout/stderr parity with the Haskell prover is unchanged.
+    pub live: bool,
     pub verbose: bool,
     pub open_chains: Option<u64>,
     pub saturation: Option<u64>,
@@ -276,6 +280,10 @@ struct LoadOpts {
     /// Suppress Rust-side diagnostics that have no oracle counterpart
     #[arg(long, global = true)]
     quiet: bool,
+
+    /// Print each lemma's verdict on stderr as soon as it is proved
+    #[arg(long, global = true)]
+    live: bool,
 
     /// Accepted for compatibility (the oracle's verbose trace has no port)
     #[arg(short = 'v', long, global = true)]
@@ -634,6 +642,7 @@ pub fn parse_args(raw: &[String]) -> Result<Args, clap::Error> {
         oracle_name: cli.load.oracle_name,
         oracle_only: cli.load.oracle_only,
         quiet: cli.load.quiet,
+        live: cli.load.live,
         verbose: cli.load.verbose,
         open_chains: cli.load.open_chains,
         saturation: cli.load.saturation,
